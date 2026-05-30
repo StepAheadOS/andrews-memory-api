@@ -14,10 +14,18 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
   try {
-    const { data, error } = await supabase
-      .from('outcomes')
-      .select('*')
-      .order('recorded_at', { ascending: false })
+    const { lead_name } = req.query || {};
+
+let query = supabase
+  .from('outcomes')
+  .select('*')
+  .order('recorded_at', { ascending: false });
+
+if (lead_name) {
+  query = query.eq('lead_name', lead_name);
+}
+
+const { data, error } = await query;
 
     if (error) throw error
 
