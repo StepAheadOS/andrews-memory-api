@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       .from('outcomes')
       .insert([
         {
-          outcome: outcome || 'Test Outcome',
+          outcome: outcome || 'BOOKED',
           recorded_by: recorded_by || 'Andrew',
           notes: notes || 'First memory test'
         }
