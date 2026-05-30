@@ -1,37 +1,35 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SECRET_KEY
-)
-
 export default async function handler(req, res) {
   try {
-    const { outcome, recorded_by, notes } = req.body || {}
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SECRET_KEY;
 
-    const { data, error } = await supabase
-      .from('outcomes')
-      .insert([
-        {
-          outcome: outcome || 'Test Outcome',
-          recorded_by: recorded_by || 'Andrew',
-          notes: notes || 'First memory test'
-        }
-      ])
-      .select()
+    const response = await fetch(`${supabaseUrl}/rest/v1/outcomes`, {
+      method: "POST",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=representation"
+      },
+      body: JSON.stringify({
+        outcome: "Test Outcome",
+        recorded_by: "Andrew",
+        notes: "First direct REST memory test"
+      })
+    });
 
-    if (error) {
-      throw error
-    }
+    const text = await response.text();
 
-    return res.status(200).json({
-      success: true,
-      data
-    })
+    return res.status(response.status).json({
+      success: response.ok,
+      status: response.status,
+      response: text
+    });
   } catch (err) {
     return res.status(500).json({
       success: false,
-      error: err.message
-    })
+      error: err.message,
+      cause: err.cause || null
+    });
   }
 }
